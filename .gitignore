@@ -2,4 +2,6 @@
 *.csv
 spotify_and_genius
 .ipynb-checkpont
-song_audi
+song_audio
+logs
+*.slurm
