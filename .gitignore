@@ -1,7 +1,7 @@
 .DS_Store
 *.csv
 spotify_and_genius
-.ipynb-checkponts
+.ipynb-checkponts/
 song_audio
 logs
 *.slurm
