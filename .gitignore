@@ -5,3 +5,4 @@ spotify_and_genius
 song_audio
 logs
 *.slurm
+.env
