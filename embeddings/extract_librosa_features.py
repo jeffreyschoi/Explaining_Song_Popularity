@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import pandas as pd
 import librosa
 import numpy as np
@@ -6,9 +5,6 @@ from tqdm import tqdm
 import os
 import sys
 
-# -----------------------------
-# Feature extraction function
-# -----------------------------
 def extract_librosa_features(file_path):
     try:
         y, sr = librosa.load(file_path, sr=None, mono=True)
@@ -58,16 +54,13 @@ def extract_librosa_features(file_path):
             "chroma_cens_mean": chroma_cens,
         }
 
-        # Add MFCCs
         for i in range(13):
             features[f"mfcc_mean_{i+1}"] = mfcc_means[i]
             features[f"mfcc_std_{i+1}"] = mfcc_stds[i]
 
-        # Add contrast
         for i, val in enumerate(contrast_mean):
             features[f"spectral_contrast_{i+1}"] = val
 
-        # Add tonnetz
         for i, val in enumerate(tonnetz_mean):
             features[f"tonnetz_{i+1}"] = val
 
@@ -76,9 +69,6 @@ def extract_librosa_features(file_path):
     except Exception as e:
         return {"error": str(e)}
 
-# -----------------------------
-# Main processing script
-# -----------------------------
 if __name__ == "__main__":
     netID = os.getenv("USER", "jsc9862")
     csv_path = f"/scratch/{netID}/Explaining_Song_Popularity/final_cleaned_songs.csv"

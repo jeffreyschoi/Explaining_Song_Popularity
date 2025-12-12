@@ -9,9 +9,6 @@ import librosa
 import numpy as np
 from tqdm import tqdm
 
-# ========================
-# Read shard index argument
-# ========================
 shard_id = int(sys.argv[1])
 netID = "jsc9862"
 
@@ -20,53 +17,30 @@ output_path = f"/scratch/{netID}/Explaining_Song_Popularity/data/librosa_shard_{
 
 df = pd.read_csv(input_path)
 
-# ========================
-# Feature Extraction Method
-# ========================
 def extract_librosa_features(path):
     try:
         y, sr = librosa.load(path, sr=None)
-
-        # Duration
         duration = librosa.get_duration(y=y, sr=sr)
-
-        # RMS Energy
         rms_energy = librosa.feature.rms(y=y).mean()
-
-        # Spectral features
         spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
         spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr).mean()
         spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.85).mean()
         zero_crossing_rate = librosa.feature.zero_crossing_rate(y).mean()
-
-        # Tempo
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-
-        # Chroma features
         chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
         chroma_cqt = librosa.feature.chroma_cqt(y=y, sr=sr)
         chroma_cens = librosa.feature.chroma_cens(y=y, sr=sr)
-
         chroma_stft_mean = chroma_stft.mean(axis=1)
         chroma_cqt_mean = chroma_cqt.mean(axis=1)
         chroma_cens_mean = chroma_cens.mean(axis=1)
-
-        # MFCCs (1–13)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         mfcc_mean = mfcc.mean(axis=1)
         mfcc_std = mfcc.std(axis=1)
-
-        # Spectral Contrast (7 or 6 bins depending on librosa version)
         spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
         spectral_contrast_mean = spectral_contrast.mean(axis=1)
-
-        # Tonnetz (6-dimensional)
         tonnetz = librosa.feature.tonnetz(y=y, sr=sr)
         tonnetz_mean = tonnetz.mean(axis=1)
 
-        # ========================
-        # Build dict with expanded feature vectors
-        # ========================
 
         feat = {
             "duration": duration,
@@ -102,16 +76,12 @@ def extract_librosa_features(path):
     except Exception as e:
         return {"error": str(e)}
 
-# ========================
-# Run feature extraction
-# ========================
 feature_dicts = []
 for p in tqdm(df["file_path"], desc=f"Shard {shard_id}"):
     feature_dicts.append(extract_librosa_features(p))
 
 features_df = pd.DataFrame(feature_dicts)
 
-# Merge with metadata
 merged = pd.concat([df.reset_index(drop=True), features_df], axis=1)
 
 merged.to_pickle(output_path)
